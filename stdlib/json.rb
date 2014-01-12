@@ -146,7 +146,8 @@ class NilClass
   end
 end
 
-class Numeric
+# FIXME: temporary hack
+class Number # Numeric
   def to_json
     `self.toString()`
   end
