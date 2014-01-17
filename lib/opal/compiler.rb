@@ -38,7 +38,7 @@ module Opal
     # compile top level local vars with support for irb style vars
     compiler_option :irb, false, :irb?
 
-    # how to handle dynamic requires (:error, :warning, :ignore)
+    # how to handle dynamic requires (:error, :warning, :ignore, false)
     compiler_option :dynamic_require_severity, :error
 
     attr_reader :result, :fragments

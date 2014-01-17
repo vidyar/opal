@@ -181,6 +181,10 @@ module Opal
             @compiler.error msg, @sexp.line
           when :warning
             @compiler.warning msg, @sexp.line
+          when :ignore
+            #noop
+          else
+            # TODO
           end
         end
 
