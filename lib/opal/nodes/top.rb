@@ -12,7 +12,11 @@ module Opal
       def compile
         push version_comment
 
-        line "(function($opal) {"
+        if compiler.requireable?
+          line "Opal.modules[#{compiler.file.inspect}] = function($opal) {"
+        else
+          line "(function($opal) {"
+        end
 
         in_scope do
           body_code = stmt(stmts)
@@ -32,7 +36,11 @@ module Opal
           line body_code
         end
 
-        line "})(Opal);\n"
+        if compiler.requireable?
+          line "};\n"
+        else
+          line "})(Opal);\n"
+        end
       end
 
       def stmts

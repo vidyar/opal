@@ -884,4 +884,11 @@
   bridge_class('Time', Date);
 
   TypeError._super = Error;
+
+  Opal.modules = {};
+  Opal.require = function(name) {
+    var module;
+    module = Opal.modules[name] || throw Opal.LoadError.$new("cannot load such file -- "+name);
+    module(Opal);
+  }
 }).call(this);

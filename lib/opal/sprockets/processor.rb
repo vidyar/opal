@@ -78,15 +78,25 @@ module Opal
       }
 
       compiler = Opal::Compiler.new
-      result = compiler.compile data, options
+      file_result = compiler.compile data, options
 
-      compiler.requires.each do |r|
+      requires_result = compiler.requires.map do |r|
         next if stubbed_file? r
         path = find_opal_require context.environment, r
-        context.require_asset path
-      end
+
+        if path
+          context.depend_on path
+          compiler.compile File.read(path), options.merge(:file => r, :requireable => true)
+        else
+          context.require_asset r
+          ''
+        end
+      end.join("\n")
+
+      result = requires_result + file_result
 
       if self.class.source_map_enabled
+        # FIXME
         $OPAL_SOURCE_MAPS[context.pathname] = compiler.source_map(source_file_url(context)).to_s
         "#{result}\n//# sourceMappingURL=#{source_map_url(context)}\n"
       else
@@ -111,11 +121,12 @@ module Opal
     end
 
     def find_opal_require(environment, r)
+      puts environment.paths
       path = environment.paths.find do |p|
         File.exist?(File.join(p, "#{r}.rb"))
       end
 
-      path ? File.join(path, "#{r}.rb") : r
+      path ? File.join(path, "#{r}.rb") : nil
     end
   end
 end
