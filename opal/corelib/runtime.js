@@ -886,9 +886,23 @@
   TypeError._super = Error;
 
   Opal.modules = {};
+  Opal.loaded = {};
   Opal.require = function(name) {
+    if (Opal.loaded[name]) {
+      return false;
+    }
+
     var module;
-    module = Opal.modules[name] || throw Opal.LoadError.$new("cannot load such file -- "+name);
-    module(Opal);
+    if (module = Opal.modules[name]) {
+      Opal.loaded[name] = true;
+      module(Opal)
+      return true
+    } else {
+      if (Opal.LoadError) {
+        throw Opal.LoadError.$new("cannot load such file -- "+name);
+      } else {
+        throw("cannot load such file -- "+name);
+      }
+    }
   }
 }).call(this);

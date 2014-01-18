@@ -89,7 +89,7 @@ module Opal
           compiler.compile File.read(path), options.merge(:file => r, :requireable => true)
         else
           context.require_asset r
-          ''
+          "Opal.loaded[#{r.inspect}] = true;"
         end
       end.join("\n")
 
