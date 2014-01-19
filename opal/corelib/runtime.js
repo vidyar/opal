@@ -895,6 +895,7 @@
     var module;
     if (module = Opal.modules[name]) {
       Opal.loaded[name] = true;
+      console.log("requiring",name);
       module(Opal)
       return true
     } else {

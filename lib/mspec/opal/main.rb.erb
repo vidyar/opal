@@ -1,8 +1,11 @@
-<% require_asset 'spec_helper' %>
+require 'opal'
+require 'spec_helper'
 
 # This file just greps for all spec files in spec/ and requires them
 <% ENV['OPAL_SPEC'].split(',').each do |s| %>
-  <% require_asset s %>
+  <% unless s.strip == '' %>
+    require <%= s.gsub(/\.rb$/,'').inspect %>
+  <% end %>
 <% end %>
 
 # All specs have been run, so we notify mspec that we are done

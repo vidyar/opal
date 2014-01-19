@@ -28,3 +28,7 @@ require 'corelib/struct'
 require 'corelib/io'
 require 'corelib/main'
 require 'corelib/variables'
+
+
+
+'asdf'

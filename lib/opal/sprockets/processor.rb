@@ -76,23 +76,12 @@ module Opal
         :irb                      => self.class.irb_enabled,
         :file                     => context.logical_path,
       }
+      puts [:logical_path, context.logical_path]
 
       compiler = Opal::Compiler.new
       file_result = compiler.compile data, options
 
-      requires_result = compiler.requires.map do |r|
-        next if stubbed_file? r
-        path = find_opal_require context.environment, r
-
-        if path
-          context.depend_on path
-          compiler.compile File.read(path), options.merge(:file => r, :requireable => true)
-        else
-          context.require_asset r
-          "Opal.loaded[#{r.inspect}] = true;"
-        end
-      end.join("\n")
-
+      requires_result = require_dependencies(context, options, compiler.requires)
       result = requires_result + file_result
 
       if self.class.source_map_enabled
@@ -102,6 +91,38 @@ module Opal
       else
         result
       end
+    end
+
+    module OpalRequires
+      def opal_required_files
+        @opal_required_files ||= {}
+      end
+    end
+
+    def require_dependencies(context, options, requires)
+      compiler = Opal::Compiler.new
+      context.extend OpalRequires
+      # required_files = context.opal_required_files
+      required_files = ($required_files ||= {})
+
+      requires.map do |r|
+        next "Opal.loaded[#{r.inspect}] = true;" if stubbed_file? r
+        next if required_files.has_key?(r)
+        print '.'
+        path = find_opal_require context.environment, r
+
+        if path
+          required_files[r] = true
+          context.depend_on path
+          result = compiler.compile File.read(path), options.merge(:file => r, :requireable => true)
+          result << require_dependencies(context, options, compiler.requires)
+          result
+        else
+          p [:SPROCKETS_REQUIRE, r]
+          context.require_asset r
+          "Opal.loaded[#{r.inspect}] = true;"
+        end
+      end.join("\n")
     end
 
     def source_map_url(context)
@@ -120,14 +141,21 @@ module Opal
       self.class.stubbed_files.include? name
     end
 
-    def find_opal_require(environment, r)
-      puts environment.paths
-      path = environment.paths.find do |p|
-        File.exist?(File.join(p, "#{r}.rb"))
+    def find_opal_require(environment, required)
+      environment.paths.each do |path|
+        glob = File.join(path, "#{required}{.rb,.opal,}")
+        p [:GLOB, glob]
+        Dir[glob].each do |f|
+          p [:FILE, f]
+          if File.file?(f)
+            p [:FOUND, f]
+            return f
+          end
+        end
       end
-
-      path ? File.join(path, "#{r}.rb") : nil
+      nil
     end
+
   end
 end
 

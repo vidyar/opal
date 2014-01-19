@@ -46,9 +46,23 @@ module MSpec
             require 'opal/util'
             path = './build/specs.js'
             min_path = './build/specs.min.js'
+            page_path = './build/specs.html'
             Environment.new.build_specs(path)
             min = ::Opal::Util.uglify File.read(path)
             File.open(min_path, 'w') { |f| f << min_path }
+            File.open(page_path, 'w') do |page|
+              page << <<-HTML
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <title>Opal Specs</title>
+                  </head>
+                  <body>
+                    <script src="./specs.js"></script>
+                  </body>
+                </html>
+              HTML
+            end
           end
         end
 
