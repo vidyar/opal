@@ -30,6 +30,8 @@ matrix:
     - rvm: 2.0.0
     - rvm: rbx
     - rvm: jruby
+    
+    
 
 before_install:
   - git submodule update --init
