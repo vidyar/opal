@@ -8,8 +8,6 @@ rvm:
     - 2.0.0
       
 
-    
-
 before_install:
   - git submodule update --init
 
