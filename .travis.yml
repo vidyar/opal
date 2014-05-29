@@ -9,8 +9,8 @@ rvm:
     - 2.0.0
    
       
-#git:
- # submodules: false    
+git:
+  submodules: false    
 
 before_install:
   - git submodule update --init
