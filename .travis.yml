@@ -11,7 +11,7 @@ git:
   submodules: false    
 
 
-#before_install:
+before_install:
  # - git submodule update --init
 
   # Fix waiting for rubygems v2.2.1 to be released and active on travis
